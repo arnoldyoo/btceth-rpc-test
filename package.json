@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "btc": "node bitcoin.js",
-    "eth": "node ethereum.js"
+    "eth": "node ethereum.js",
+    "erc": "node erc20.js"
   },
   "keywords": [],
   "author": "",

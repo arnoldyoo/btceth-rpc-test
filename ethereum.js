@@ -1,12 +1,79 @@
 const Web3 = require('web3');
 const EthereumTx = require('ethereumjs-tx');
 
-var mainnet = "http://:8545"
+const mainnet = "http://:8545";
+const testnet = "";
 // var testnet = "";
 
 // const web3 = new Web3(Web3.givenProvider || 'ws://104.155.141.101:8545');
 
-const web3 = new Web3(new Web3.providers.HttpProvider(mainnet));
+const web3 = new Web3(new Web3.providers.HttpProvider(testnet));
+
+async function transaction() {
+
+  var fromPubKey = '0x6020B93cce52196FA9C7915B3BC3D83009cd244D';
+  var fromPriKey = '0x67f7f5fb893aed77b5b4d2b22d627471ca2827fcb09b89dafa485f5f3d22873a';
+  var toPubKey = '0xA526fC12265027638E1aD10FA86179Ee6a1fF848';
+  
+  const tempPrivate = fromPriKey.substr(2);
+  
+  var privateKey = Buffer.from(tempPrivate, 'hex');
+  
+  var nonce = await web3.eth.getTransactionCount(fromPubKey);//보내는사람의 전송 넌스
+  var gasLimit = web3.utils.toHex('50000');
+  var gasPrice = web3.utils.toHex('11000000000');
+  var value = web3.utils.toHex(web3.utils.toWei('0.001'));
+  
+  const txParams = {
+    nonce: web3.utils.toHex(nonce),
+    gasPrice: gasPrice, 
+    gasLimit: gasLimit,
+    to: toPubKey, 
+    value: value, 
+    data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
+    // EIP 155 chainId - mainnet: 1, ropsten: 3
+    chainId: 3
+  }
+  
+  const tx = new EthereumTx(txParams)
+  tx.sign(privateKey);
+  const serializedTx = tx.serialize()
+  
+  web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {                
+    if (!err) console.log(hash); // transaction hash
+    else console.log(err);
+  });
+}
+
+// transaction();
+
+
+async function getTransaction() {
+ const result = await web3.eth.getTransaction('0x0e27854c68d571149661aa15724efd0a9c8fbf4975683a055d2f510a6002c69e');
+ console.log(result);
+}
+
+// getTransaction();
+
+
+async function getHistory() {
+  var fromPubKey = '0x6020B93cce52196FA9C7915B3BC3D83009cd244D';
+  const bn = await web3.eth.getBlockNumber();
+  var txs = [];
+  for(var i = bn-10; i < bn; i++) {
+      var block = await web3.eth.getBlock(i, true);
+      for(var j = 0; j<block.transactions.length;j ++){
+        if( block.transactions[j].from == fromPubKey ){
+          txs.push(block.transactions[j]);
+        }
+      }
+      
+  }
+
+  console.log(txs);
+}
+
+getHistory();
 
 
 // web3.eth.personal.newAccount('790102', function(err ,account) {
@@ -68,39 +135,6 @@ const web3 = new Web3(new Web3.providers.HttpProvider(mainnet));
 
 
 
-// var fromPubKey = '0x8849FFA08d4D7efC164c498d2bF53c4dBD91C2De';
-// var fromPriKey = '0xc48cb6ddd69fa6dd2abe9d870391d530e722595721301036f5e276ce9d2ee609';
-// var toPubKey = '0x0F232032Cd2C3Fdf6e1319F4F98a03b69d1b34C2';
-
-// const tempPrivate = fromPriKey.substr(2);
-// console.log(tempPrivate);
-
-// var privateKey = Buffer.from(tempPrivate, 'hex');
-
-// var nonceHex = web3.utils.toHex( web3.eth.getTransactionCount(fromPubKey) );//보내는사람의 전송 넌스
-// var gasLimit = web3.utils.toHex('5000');
-// var gasPrice = web3.utils.toHex('11000000000');
-// var value = web3.utils.toHex(web3.utils.toWei('0.001'));
-
-// const txParams = {
-//   nonce: nonceHex,
-//   gasPrice: gasPrice, 
-//   gasLimit: gasLimit,
-//   to: toPubKey, 
-//   value: value, 
-//   data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',
-//   // EIP 155 chainId - mainnet: 1, ropsten: 3
-//   chainId: 1
-// }
-
-// const tx = new EthereumTx(txParams)
-// tx.sign(privateKey);
-// const serializedTx = tx.serialize()
-
-// web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'), function(err, hash) {                
-//   if (!err) console.log(hash); // transaction hash
-//   else console.log(err);
-// });
 
 
 ///////////////////////////////////////////////transaction test//////////////////////////////////////

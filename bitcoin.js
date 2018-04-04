@@ -73,3 +73,8 @@ const kapitalize = require('kapitalize')({
 //   console.log(err);
 //   console.log(result);
 // })
+
+// kapitalize.exec('listtransactions', "*", 1000, 0, true, function(err, result) {
+//   console.log(err)
+//   console.log(result)
+// })
